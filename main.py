@@ -38,7 +38,8 @@ def keep_alive():
 
 # ÖNEMLİ: default() kullanıyoruz, böylece message intent vs. açık geliyor
 intents = discord.Intents.default()
-intents.message_content = True  # mesaj içeriğini okuyabilsin
+intents.message_content = True
+  # mesaj içeriğini okuyabilsin
 
 bot = commands.Bot(
     command_prefix=".",
