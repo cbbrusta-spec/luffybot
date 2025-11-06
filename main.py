@@ -35,9 +35,10 @@ def keep_alive():
 
 
 # ============ DISCORD BOT AYARLARI ============
-intents = discord.Intents.none()
-intents.guilds = True
-intents.message_content = True  # Bunu Discord Developer Portal'dan da açmayı unutma!
+
+# ÖNEMLİ: default() kullanıyoruz, böylece message intent vs. açık geliyor
+intents = discord.Intents.default()
+intents.message_content = True  # mesaj içeriğini okuyabilsin
 
 bot = commands.Bot(
     command_prefix=".",
@@ -79,6 +80,9 @@ async def on_message(message: discord.Message):
     # DM mesajlarını şimdilik yok say
     if isinstance(message.channel, discord.DMChannel):
         return
+
+    # Debug istersen açarsın:
+    # logger.info(f"Mesaj geldi: {message.content} | Kanal: {message.channel} | Kullanıcı: {message.author}")
 
     # "sa" yazılınca cevap ver
     if message.content.lower().strip() == "sa":
