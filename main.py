@@ -1,9 +1,11 @@
 import os
 import random
 import logging
+from threading import Thread
 
 import discord
 from discord.ext import commands
+from flask import Flask
 
 # ============ LOG AYARI ============
 logging.basicConfig(
@@ -13,10 +15,29 @@ logging.basicConfig(
 logger = logging.getLogger("LuffyBot")
 # ===================================
 
-# ============ BOT AYARLARI ============
+
+# ============ FLASK KEEP-ALIVE (RENDER İÇİN) ============
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "LuffyBot is alive!"
+
+def run_web():
+    # Render ortamı PORT değişkenini otomatik veriyor
+    port = int(os.getenv("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
+def keep_alive():
+    t = Thread(target=run_web, daemon=True)
+    t.start()
+# ========================================================
+
+
+# ============ DISCORD BOT AYARLARI ============
 intents = discord.Intents.none()
 intents.guilds = True
-intents.message_content = True  # Bunu Discord Developer Portal'dan da aç!
+intents.message_content = True  # Bunu Discord Developer Portal'dan da açmayı unutma!
 
 bot = commands.Bot(
     command_prefix=".",
@@ -36,23 +57,30 @@ SELAM_CEVAPLARI = [
     "selam paşam 👑",
     "gönüllerin korsanı LuffyBot burada ☠️"
 ]
-# =======================================
+# ========================================================
 
 
 # ============ EVENTLER ============
 @bot.event
 async def on_ready():
     logger.info(f"Giriş yapıldı: {bot.user} (LuffyBot aktif ✅)")
+    try:
+        await bot.change_presence(activity=discord.Game(name=".help yaz 🧠"))
+    except Exception as e:
+        logger.error(f"Presence ayarlanırken hata: {e}")
 
 
 @bot.event
 async def on_message(message: discord.Message):
+    # Botların mesajını görmezden gel
     if message.author.bot:
         return
 
+    # DM mesajlarını şimdilik yok say
     if isinstance(message.channel, discord.DMChannel):
         return
 
+    # "sa" yazılınca cevap ver
     if message.content.lower().strip() == "sa":
         try:
             cevap = random.choice(SELAM_CEVAPLARI)
@@ -60,8 +88,9 @@ async def on_message(message: discord.Message):
         except Exception as e:
             logger.error(f"'sa' cevabı atılırken hata: {e}")
 
+    # Komutların da çalışması için
     await bot.process_commands(message)
-# ==================================
+# ========================================================
 
 
 # ============ KOMUTLAR ============
@@ -86,16 +115,22 @@ async def help_command(ctx: commands.Context):
         await ctx.send(metin)
     except Exception as e:
         logger.error(f".help komutunda hata: {e}")
-# ==================================
+# ========================================================
 
 
 # ============ ÇALIŞTIRMA ============
 def main():
-    # 🔴 TOKEN BURADAN OKUNUYOR
-    token = os.getenv("TOKEN")  # Railway'de env olarak ekleyeceğiz
+    # Render port uyarısı için Flask web sunucusunu başlat
+    keep_alive()
+
+    # TOKEN'i ortam değişkeninden al
+    token = os.getenv("TOKEN")
 
     if not token:
-        logger.error("HATA: TOKEN environment variable bulunamadı!")
+        logger.error(
+            "HATA: TOKEN environment variable bulunamadı! "
+            "Render → Environment kısmına Key=TOKEN, Value=Discord bot token'in ekli olmalı."
+        )
         return
 
     try:
@@ -106,4 +141,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-# ==================================
+# ========================================================
