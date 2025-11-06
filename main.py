@@ -48,15 +48,15 @@ bot = commands.Bot(
 )
 
 SELAM_CEVAPLARI = [
-    "selam moruk 😎",
-    "naber yavrum 💀",
-    "naber aşkım 😏",
-    "selam kanki 👋",
+    "naber it luffy 😎",
+    "naber yunan it 💀",
+    "canım aliem 😏",
+    "as şimdi ssiktir git 👋",
     "napıyon lan 😂",
-    "hoş geldin reis 🤙",
-    "ooo kimler gelmiş 😈",
-    "as as kardeşim 🧠",
-    "selam paşam 👑",
+    "ne diyo olum 🤙",
+    "kendini müşlüman sanıyor 😈",
+    "as 🧠",
+    "sg 👑",
     "gönüllerin korsanı LuffyBot burada ☠️"
 ]
 # ========================================================
